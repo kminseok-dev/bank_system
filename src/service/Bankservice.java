@@ -46,4 +46,46 @@ public class Bankservice {
 			}
 			return bankDAO.transfer(requestDto);
 		}
+
+		// 5. 입금 서비스
+		public int depositService(String accountNumber, Long amount) {
+			validateAmount(amount, "입금");
+			validateAccountNumber(accountNumber);
+
+			AccountCreateResponseDto account = bankDAO.selectByAccountNumber(accountNumber);
+			if (account == null) {
+				throw new IllegalArgumentException("존재하지 않는 계좌번호입니다.");
+			}
+
+			return bankDAO.deposit(accountNumber, amount);
+		}
+
+		// 6. 출금 서비스
+		public int withdrawService(String accountNumber, Long amount) {
+			validateAmount(amount, "출금");
+			validateAccountNumber(accountNumber);
+
+			AccountCreateResponseDto account = bankDAO.selectByAccountNumber(accountNumber);
+			if (account == null) {
+				throw new IllegalArgumentException("존재하지 않는 계좌번호입니다.");
+			}
+
+			if (account.getBalance() < amount) {
+				throw new IllegalArgumentException("잔액이 부족합니다.");
+			}
+
+			return bankDAO.withdraw(accountNumber, amount);
+		}
+
+		private void validateAmount(Long amount, String taskName) {
+			if (amount == null || amount <= 0) {
+				throw new IllegalArgumentException(taskName + " 금액은 0보다 커야 합니다.");
+			}
+		}
+
+		private void validateAccountNumber(String accountNumber) {
+			if (accountNumber == null || accountNumber.isBlank()) {
+				throw new IllegalArgumentException("계좌번호를 입력해 주세요.");
+			}
+		}
 }

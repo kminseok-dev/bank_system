@@ -161,6 +161,44 @@ public class BankDao {
 			}
 		}
 
+		// 5. 입금
+		public int deposit(String accountNumber, Long amount) {
+			int result = 0;
+			String sql = "update account set balance = balance + ? where account_number = ?";
+
+			conn = DBUtil.dbConnect();
+			try {
+				pst = conn.prepareStatement(sql);
+				pst.setLong(1, amount);
+				pst.setString(2, accountNumber);
+				result = pst.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				DBUtil.dbDisconnect(conn, pst, null);
+			}
+			return result;
+		}
+
+		// 6. 출금
+		public int withdraw(String accountNumber, Long amount) {
+			int result = 0;
+			String sql = "update account set balance = balance - ? where account_number = ?";
+
+			conn = DBUtil.dbConnect();
+			try {
+				pst = conn.prepareStatement(sql);
+				pst.setLong(1, amount);
+				pst.setString(2, accountNumber);
+				result = pst.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				DBUtil.dbDisconnect(conn, pst, null);
+			}
+			return result;
+		}
+
 		// ResultSet을 Response DTO로 매핑하는 헬퍼 메서드
 		private AccountCreateResponseDto makeAccount(ResultSet rs) throws SQLException {
 			AccountCreateResponseDto account = new AccountCreateResponseDto();

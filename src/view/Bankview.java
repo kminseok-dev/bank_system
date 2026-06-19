@@ -12,6 +12,8 @@ public class Bankview {
 		System.out.println("2. 계좌번호로 조회");
 		System.out.println("3. 전체 계좌 조회");
 		System.out.println("4. 계좌 이체");
+		System.out.println("5. 입금");
+		System.out.println("6. 출금");
 		System.out.println("99. 종료");
 		System.out.print("메뉴 선택 >> ");
 	}
@@ -29,19 +31,39 @@ public class Bankview {
 		}
 	}
 
-	public static void printMessage(String string, int result) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public static void printAccount(List<AccountCreateResponseDto> aList) {
-		// TODO Auto-generated method stub
-
+	public static void printMessage(String taskName, int result) {
+		if (result > 0) {
+			System.out.println(taskName + " 성공");
+		} else {
+			System.out.println(taskName + " 실패");
+		}
 	}
 
 	public static void printAccount(AccountCreateResponseDto account) {
-		// TODO Auto-generated method stub
+		if (account == null) {
+			System.out.println("조회된 계좌가 없습니다.");
+			return;
+		}
 
+		System.out.println("\n[계좌 정보]");
+		System.out.println("계좌 ID: " + account.getAccountId());
+		System.out.println("회원 ID: " + account.getMemberId());
+		System.out.println("고객명: " + account.getCustomerName());
+		System.out.println("계좌번호: " + account.getAccountNumber());
+		System.out.println("계좌 이름: " + account.getAccountName());
+		System.out.println("잔액: " + account.getBalance());
+		System.out.println("개설일시: " + account.getCreatedAt());
+	}
+
+	public static void printAccount(List<AccountCreateResponseDto> aList) {
+		if (aList == null || aList.isEmpty()) {
+			System.out.println("조회된 계좌가 없습니다.");
+			return;
+		}
+
+		for (AccountCreateResponseDto account : aList) {
+			printAccount(account);
+		}
 	}
 
 }
