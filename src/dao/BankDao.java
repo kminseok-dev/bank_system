@@ -199,6 +199,25 @@ public class BankDao {
 			return result;
 		}
 
+		// 7. 계좌 해지 (계좌를 실제로 삭제). 잔액이 0인 계좌만 삭제
+		// 성공 시 1, 대상 없으면(잔액 남았거나 미존재) 0 반환
+		public int closeAccount(String accountNumber) {
+			int result = 0;
+			String sql = "delete from account where account_number = ? and balance = 0";
+
+			conn = DBUtil.dbConnect();
+			try {
+				pst = conn.prepareStatement(sql);
+				pst.setString(1, accountNumber);
+				result = pst.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				DBUtil.dbDisconnect(conn, pst, null);
+			}
+			return result;
+		}
+
 		// ResultSet을 Response DTO로 매핑하는 헬퍼 메서드
 		private AccountCreateResponseDto makeAccount(ResultSet rs) throws SQLException {
 			AccountCreateResponseDto account = new AccountCreateResponseDto();

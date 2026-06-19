@@ -34,6 +34,7 @@ public class Bankcontroller {
 				case 4 -> f_accountTransfer();           // 계좌 이체
 				case 5 -> f_deposit();                   // 입금
 				case 6 -> f_withdraw();                  // 출금
+				case 7 -> f_accountClose();              // 계좌 해지(삭제)
 				case 99 -> {
 					System.out.println("\n뱅킹 시스템을 종료합니다. 이용해 주셔서 감사합니다!");
 					isRunning = false;
@@ -139,6 +140,20 @@ public class Bankcontroller {
 			Bankview.printMessage("출금", result);
 		} catch (NumberFormatException e) {
 			System.out.println("! 금액은 숫자로만 입력해 주세요.");
+		} catch (IllegalArgumentException e) {
+			System.out.println("! " + e.getMessage());
+		}
+	}
+
+	// 7. 계좌 해지(삭제)
+	private static void f_accountClose() {
+		try {
+			System.out.println("\n[계좌 해지]");
+			System.out.print("해지할 계좌번호 >> ");
+			String accountNumber = sc.nextLine();
+
+			int result = bankService.closeService(accountNumber);
+			Bankview.printMessage("계좌 해지", result);
 		} catch (IllegalArgumentException e) {
 			System.out.println("! " + e.getMessage());
 		}

@@ -14,6 +14,7 @@ public class Bankview {
 		System.out.println("4. 계좌 이체");
 		System.out.println("5. 입금");
 		System.out.println("6. 출금");
+		System.out.println("7. 계좌 해지");
 		System.out.println("99. 종료");
 		System.out.print("메뉴 선택 >> ");
 	}

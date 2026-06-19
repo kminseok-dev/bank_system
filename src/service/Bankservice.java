@@ -77,6 +77,22 @@ public class Bankservice {
 			return bankDAO.withdraw(accountNumber, amount);
 		}
 
+		// 7. 계좌 해지 서비스 (잔액이 0일 때만 삭제 가능)
+		public int closeService(String accountNumber) {
+			validateAccountNumber(accountNumber);
+
+			AccountCreateResponseDto account = bankDAO.selectByAccountNumber(accountNumber);
+			if (account == null) {
+				throw new IllegalArgumentException("존재하지 않는 계좌입니다.");
+			}
+
+			if (account.getBalance() != 0) {
+				throw new IllegalArgumentException("잔액이 남아있어 해지할 수 없습니다. (남은 잔액: " + account.getBalance() + ")");
+			}
+
+			return bankDAO.closeAccount(accountNumber);
+		}
+
 		private void validateAmount(Long amount, String taskName) {
 			if (amount == null || amount <= 0) {
 				throw new IllegalArgumentException(taskName + " 금액은 0보다 커야 합니다.");
