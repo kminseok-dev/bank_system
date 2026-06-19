@@ -213,5 +213,6 @@ public class BankDao {
 			account.setCreatedAt(rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toString() : null);
 			
 			return account;
+			
 		}
 }
