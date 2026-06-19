@@ -10,6 +10,7 @@ import java.util.List;
 
 import dto.AccountCreateRequestDto;
 import dto.AccountCreateResponseDto;
+import dto.TransferRequestDto;
 import util.DBUtil;
 
 public class BankDao {
@@ -88,6 +89,76 @@ public class BankDao {
 				DBUtil.dbDisconnect(conn, pst, rs);
 			}
 			return account;
+		}
+
+		// 4. 계좌 이체 (출금 -> 입금을 하나의 트랜잭션으로 처리)
+		// 반환값: 1 성공, -1 출금계좌 없음, -2 입금계좌 없음, -3 잔액 부족, 0 그 외 오류
+		public int transfer(TransferRequestDto requestDto) {
+			String selectSql = "select balance from account where account_number = ? for update";
+			String updateSql = "update account set balance = balance + ? where account_number = ?";
+
+			conn = DBUtil.dbConnect();
+			PreparedStatement updatePst = null;
+			try {
+				conn.setAutoCommit(false); // 트랜잭션 시작
+
+				// 1) 출금 계좌 조회 및 잔액 확인 (행 잠금)
+				pst = conn.prepareStatement(selectSql);
+				pst.setString(1, requestDto.getFromAccountNumber());
+				rs = pst.executeQuery();
+				if (!rs.next()) {
+					conn.rollback();
+					return -1; // 출금 계좌 없음
+				}
+				long fromBalance = rs.getLong("balance");
+				rs.close();
+				pst.close();
+
+				if (fromBalance < requestDto.getAmount()) {
+					conn.rollback();
+					return -3; // 잔액 부족
+				}
+
+				// 2) 입금 계좌 존재 여부 확인 (행 잠금)
+				pst = conn.prepareStatement(selectSql);
+				pst.setString(1, requestDto.getToAccountNumber());
+				rs = pst.executeQuery();
+				if (!rs.next()) {
+					conn.rollback();
+					return -2; // 입금 계좌 없음
+				}
+				rs.close();
+				pst.close();
+
+				// 3) 출금 계좌 차감
+				updatePst = conn.prepareStatement(updateSql);
+				updatePst.setLong(1, -requestDto.getAmount());
+				updatePst.setString(2, requestDto.getFromAccountNumber());
+				updatePst.executeUpdate();
+
+				// 4) 입금 계좌 증가
+				updatePst.setLong(1, requestDto.getAmount());
+				updatePst.setString(2, requestDto.getToAccountNumber());
+				updatePst.executeUpdate();
+
+				conn.commit(); // 둘 다 성공해야 확정
+				return 1;
+			} catch (SQLException e) {
+				try {
+					if (conn != null) conn.rollback();
+				} catch (SQLException rollbackEx) {
+					rollbackEx.printStackTrace();
+				}
+				e.printStackTrace();
+				return 0;
+			} finally {
+				try {
+					if (updatePst != null) updatePst.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				DBUtil.dbDisconnect(conn, pst, rs);
+			}
 		}
 
 		// ResultSet을 Response DTO로 매핑하는 헬퍼 메서드

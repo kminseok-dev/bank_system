@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import dto.AccountCreateRequestDto;
 import dto.AccountCreateResponseDto;
+import dto.TransferRequestDto;
 import service.Bankservice;
 import view.Bankview;
 
@@ -30,6 +31,7 @@ public class Bankcontroller {
 				case 1 -> f_accountInsert();             // 계좌 개설
 				case 2 -> f_accountSelectByNumber();     // 계좌번호로 단건 조회
 				case 3 -> f_accountSelectAll();          // 전체 계좌 조회
+				case 4 -> f_accountTransfer();           // 계좌 이체
 				case 99 -> {
 					System.out.println("\n뱅킹 시스템을 종료합니다. 이용해 주셔서 감사합니다!");
 					isRunning = false;
@@ -76,5 +78,31 @@ public class Bankcontroller {
 	private static void f_accountSelectAll() {
 		List<AccountCreateResponseDto> aList = bankService.selectAllService();
 		Bankview.printAccount(aList);
+	}
+
+	// 4. 계좌 이체
+	private static void f_accountTransfer() {
+		System.out.println("\n[계좌 이체]");
+		System.out.print("출금 계좌번호 >> ");
+		String fromAccountNumber = sc.nextLine();
+		System.out.print("입금 계좌번호 >> ");
+		String toAccountNumber = sc.nextLine();
+		System.out.print("이체 금액 >> ");
+
+		Long amount;
+		try {
+			amount = Long.parseLong(sc.nextLine());
+		} catch (NumberFormatException e) {
+			System.out.println("! 이체 금액은 숫자로만 입력해 주세요.");
+			return;
+		}
+
+		TransferRequestDto requestDto = new TransferRequestDto();
+		requestDto.setFromAccountNumber(fromAccountNumber);
+		requestDto.setToAccountNumber(toAccountNumber);
+		requestDto.setAmount(amount);
+
+		int result = bankService.transferService(requestDto);
+		Bankview.printTransferMessage(result);
 	}
 }
