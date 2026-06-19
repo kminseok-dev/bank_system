@@ -32,6 +32,8 @@ public class Bankcontroller {
 				case 2 -> f_accountSelectByNumber();     // 계좌번호로 단건 조회
 				case 3 -> f_accountSelectAll();          // 전체 계좌 조회
 				case 4 -> f_accountTransfer();           // 계좌 이체
+				case 5 -> f_deposit();                   // 입금
+				case 6 -> f_withdraw();                  // 출금
 				case 99 -> {
 					System.out.println("\n뱅킹 시스템을 종료합니다. 이용해 주셔서 감사합니다!");
 					isRunning = false;
@@ -104,5 +106,41 @@ public class Bankcontroller {
 
 		int result = bankService.transferService(requestDto);
 		Bankview.printTransferMessage(result);
+	}
+
+	// 5. 입금
+	private static void f_deposit() {
+		try {
+			System.out.println("\n[입금]");
+			System.out.print("입금할 계좌번호 >> ");
+			String accountNumber = sc.nextLine();
+			System.out.print("입금 금액 >> ");
+			Long amount = Long.parseLong(sc.nextLine());
+
+			int result = bankService.depositService(accountNumber, amount);
+			Bankview.printMessage("입금", result);
+		} catch (NumberFormatException e) {
+			System.out.println("! 금액은 숫자로만 입력해 주세요.");
+		} catch (IllegalArgumentException e) {
+			System.out.println("! " + e.getMessage());
+		}
+	}
+
+	// 6. 출금
+	private static void f_withdraw() {
+		try {
+			System.out.println("\n[출금]");
+			System.out.print("출금할 계좌번호 >> ");
+			String accountNumber = sc.nextLine();
+			System.out.print("출금 금액 >> ");
+			Long amount = Long.parseLong(sc.nextLine());
+
+			int result = bankService.withdrawService(accountNumber, amount);
+			Bankview.printMessage("출금", result);
+		} catch (NumberFormatException e) {
+			System.out.println("! 금액은 숫자로만 입력해 주세요.");
+		} catch (IllegalArgumentException e) {
+			System.out.println("! " + e.getMessage());
+		}
 	}
 }
